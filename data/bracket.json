@@ -1,0 +1,56 @@
+{
+  "source": "Wikipedia 2026 FIFA World Cup knockout stage + FIFA Regulations Annex C (digitalhub.fifa.com FWC2026_regulations_EN.pdf)",
+  "third_slot_allowed_groups": {
+    "T74": ["A", "B", "C", "D", "F"],
+    "T77": ["C", "D", "F", "G", "H"],
+    "T79": ["C", "E", "F", "H", "I"],
+    "T80": ["E", "H", "I", "J", "K"],
+    "T81": ["B", "E", "F", "I", "J"],
+    "T82": ["A", "E", "H", "I", "J"],
+    "T85": ["E", "F", "G", "I", "J"],
+    "T87": ["D", "E", "I", "J", "L"]
+  },
+  "rounds": {
+    "R32": [
+      {"id": "M73", "match": 73, "date": "2026-06-28", "home": "2A", "away": "2B", "country": "United States"},
+      {"id": "M74", "match": 74, "date": "2026-06-29", "home": "1E", "away": "T74", "country": "United States"},
+      {"id": "M75", "match": 75, "date": "2026-06-29", "home": "1F", "away": "2C", "country": "Mexico"},
+      {"id": "M76", "match": 76, "date": "2026-06-29", "home": "1C", "away": "2F", "country": "United States"},
+      {"id": "M77", "match": 77, "date": "2026-06-30", "home": "1I", "away": "T77", "country": "United States"},
+      {"id": "M78", "match": 78, "date": "2026-06-30", "home": "2E", "away": "2I", "country": "United States"},
+      {"id": "M79", "match": 79, "date": "2026-06-30", "home": "1A", "away": "T79", "country": "Mexico"},
+      {"id": "M80", "match": 80, "date": "2026-07-01", "home": "1L", "away": "T80", "country": "United States"},
+      {"id": "M81", "match": 81, "date": "2026-07-01", "home": "1D", "away": "T81", "country": "United States"},
+      {"id": "M82", "match": 82, "date": "2026-07-01", "home": "1G", "away": "T82", "country": "United States"},
+      {"id": "M83", "match": 83, "date": "2026-07-02", "home": "2K", "away": "2L", "country": "Canada"},
+      {"id": "M84", "match": 84, "date": "2026-07-02", "home": "1H", "away": "2J", "country": "United States"},
+      {"id": "M85", "match": 85, "date": "2026-07-02", "home": "1B", "away": "T85", "country": "Canada"},
+      {"id": "M86", "match": 86, "date": "2026-07-03", "home": "1J", "away": "2H", "country": "United States"},
+      {"id": "M87", "match": 87, "date": "2026-07-03", "home": "1K", "away": "T87", "country": "United States"},
+      {"id": "M88", "match": 88, "date": "2026-07-03", "home": "2D", "away": "2G", "country": "United States"}
+    ],
+    "R16": [
+      {"id": "M89", "match": 89, "date": "2026-07-04", "home": "M74", "away": "M77", "country": "United States"},
+      {"id": "M90", "match": 90, "date": "2026-07-04", "home": "M73", "away": "M75", "country": "United States"},
+      {"id": "M91", "match": 91, "date": "2026-07-05", "home": "M76", "away": "M78", "country": "United States"},
+      {"id": "M92", "match": 92, "date": "2026-07-05", "home": "M79", "away": "M80", "country": "Mexico"},
+      {"id": "M93", "match": 93, "date": "2026-07-06", "home": "M83", "away": "M84", "country": "United States"},
+      {"id": "M94", "match": 94, "date": "2026-07-06", "home": "M81", "away": "M82", "country": "United States"},
+      {"id": "M95", "match": 95, "date": "2026-07-07", "home": "M86", "away": "M88", "country": "United States"},
+      {"id": "M96", "match": 96, "date": "2026-07-07", "home": "M85", "away": "M87", "country": "Canada"}
+    ],
+    "QF": [
+      {"id": "M97", "match": 97, "date": "2026-07-09", "home": "M89", "away": "M90", "country": "United States"},
+      {"id": "M98", "match": 98, "date": "2026-07-10", "home": "M93", "away": "M94", "country": "United States"},
+      {"id": "M99", "match": 99, "date": "2026-07-11", "home": "M91", "away": "M92", "country": "United States"},
+      {"id": "M100", "match": 100, "date": "2026-07-11", "home": "M95", "away": "M96", "country": "United States"}
+    ],
+    "SF": [
+      {"id": "M101", "match": 101, "date": "2026-07-14", "home": "M97", "away": "M98", "country": "United States"},
+      {"id": "M102", "match": 102, "date": "2026-07-15", "home": "M99", "away": "M100", "country": "United States"}
+    ],
+    "F": [
+      {"id": "M104", "match": 104, "date": "2026-07-19", "home": "M101", "away": "M102", "country": "United States"}
+    ]
+  }
+}

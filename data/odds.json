@@ -1,0 +1,20 @@
+{
+  "source": "ESPN Betting (DraftKings) https://www.espn.com/espn/betting/story/_/id/48386952/espn-soccer-futbol-world-cup-betting-odds-championship-groups ; cross-check VegasInsider (BetMGM) https://www.vegasinsider.com/soccer/odds/world-cup/",
+  "as_of": "2026-06-11",
+  "outright_decimal": {
+    "Spain": 5.50, "France": 5.75, "England": 8.50, "Portugal": 9.00,
+    "Brazil": 10.50, "Argentina": 11.00, "Germany": 15.00, "Netherlands": 21.00,
+    "Norway": 31.00, "Belgium": 41.00, "Colombia": 51.00, "Mexico": 51.00,
+    "Morocco": 51.00, "United States": 61.00, "Japan": 61.00, "Uruguay": 66.00,
+    "Switzerland": 66.00, "Ecuador": 81.00, "Turkey": 91.00, "Croatia": 91.00,
+    "Senegal": 91.00, "Sweden": 121.00, "Austria": 151.00, "Canada": 201.00,
+    "South Korea": 201.00, "Scotland": 201.00, "Ivory Coast": 251.00,
+    "Paraguay": 301.00, "Egypt": 301.00, "Ghana": 301.00, "Algeria": 351.00,
+    "Bosnia and Herzegovina": 501.00, "Czech Republic": 501.00, "Tunisia": 501.00,
+    "Australia": 601.00, "Iran": 701.00, "DR Congo": 1001.00, "Saudi Arabia": 1001.00,
+    "Panama": 1001.00, "Cape Verde": 1001.00, "Qatar": 1501.00, "Uzbekistan": 1501.00,
+    "New Zealand": 1501.00, "Iraq": 1501.00, "South Africa": 1501.00,
+    "Jordan": 2501.00, "Curacao": 2501.00, "Haiti": 2501.00
+  },
+  "notes": "Odds al 11-jun-2026. Originales en formato americano/fraccional convertidas a decimal. Cross-check BetMGM consistente dentro de margenes entre casas."
+}

@@ -1,0 +1,40 @@
+<h3>Arquitectura del modelo</h3>
+<p>Modelo híbrido <b>Elo → doble Poisson con corrección Dixon-Coles → Monte Carlo</b>:</p>
+<ul>
+<li><b>Fuerza de equipos:</b> World Football Elo Ratings (eloratings.net, snapshot del 12-jun-2026, posterior a los amistosos de preparación). El Elo ya incorpora resultados recientes ponderados por importancia y rival, por lo que actúa simultáneamente como métrica de fuerza y de forma — es el predictor público con mejor historial documentado en fútbol de selecciones, superior al ranking FIFA en estudios de backtesting.</li>
+<li><b>Goles esperados por partido:</b> diferencia de gol esperada <code>E[GD] = 0.00444 × Δ Elo</code>, <b>calibrada empíricamente</b> (ver pestaña Backtest): regresión sobre 1,345 partidos de finales continentales 2006–2025 transferida a la escala del Elo oficial, validada out-of-sample en los Mundiales 2014/18/22 (el grid de test confirmó el óptimo en ~0.0045 de forma independiente). Total base de <code>2.66</code> goles (media real de los Mundiales 2014–2022: 2.67, 2.64, 2.69), con incremento acotado en mismatches grandes y −0.2 en eliminatorias (los KO son históricamente más cerrados).</li>
+<li><b>Ensemble modelo+mercado:</b> para P(campeón) se reporta además una combinación log-odds 50/50 del modelo con las probabilidades implícitas del mercado sin margen, renormalizada. Es la estimación recomendada: la evidencia en forecasting deportivo muestra que el blend supera a ambos componentes por separado, y neutraliza los sesgos conocidos del Elo (CONMEBOL inflada, plantillas top castigadas por amistosos).</li>
+<li><b>Distribución de marcadores:</b> doble Poisson independiente con corrección <b>Dixon-Coles</b> (ρ = −0.10) que corrige la subestimación de 0-0/1-1 — el mecanismo estándar para evitar tanto el sesgo "miedoso" a sobre-empatar como el de subestimar empates.</li>
+<li><b>Localía:</b> +65 puntos Elo para México, EE.UU. y Canadá solo en partidos dentro de su propio país (el estándar Elo de localía plena es +100; se reduce por ser torneo neutral con sedes múltiples).</li>
+<li><b>Eliminatorias:</b> 90' → prórroga (λ/3) → penales casi 50/50 (la evidencia de que el favorito gana más penales es débil).</li>
+<li><b>Monte Carlo:</b> 100.000 réplicas del torneo completo con reglas FIFA exactas: desempates de grupo (puntos → DG → GF → head-to-head → azar), ranking de los 12 terceros (top 8 avanzan) y asignación de terceros al bracket respetando las restricciones del calendario oficial.</li>
+<li><b>Resultados reales:</b> los partidos ya jugados (México 2-0 Sudáfrica, Corea del Sur 2-1 Chequia, Canadá 0-1 Bosnia) entran como hechos, no como simulación.</li>
+</ul>
+
+<h3>Qué datos NO existen o no se usaron (transparencia)</h3>
+<ul>
+<li><b>xG/xGA de los últimos 20 partidos por selección:</b> no existe una fuente pública verificable y completa para las 48 selecciones. NO se inventaron valores; en su lugar el Elo (que pondera resultados reales) hace de proxy de fuerza ofensiva/defensiva. La columna "xG modelo" de la pestaña Partidos son los goles esperados <i>del modelo</i>, no xG observado de proveedor.</li>
+<li><b>Lesiones:</b> verificadas cualitativamente (Rodrygo, Militão y Estêvão fuera en Brasil; Xavi Simons y De Ligt fuera en Países Bajos; Gnabry fuera en Alemania; Ekitiké en Francia; Grealish/Palmer ausentes en Inglaterra; Mitoma en Japón, etc.) pero <b>no convertidas a ajuste numérico</b>: no existe una base verificable que cuantifique el impacto Elo de cada baja, y un ajuste manual introduciría más sesgo del que elimina. El mercado de apuestas sí las pondera — por eso se reporta la comparación modelo vs. mercado.</li>
+<li><b>Fatiga, viajes, clima, balón parado, dependencia de estrella:</b> sin fuente cuantitativa verificable a nivel de las 48 selecciones; excluidos explícitamente del modelo y declarados como limitación.</li>
+</ul>
+
+<h3>Limitaciones y sesgos conocidos</h3>
+<ul>
+<li><b>El Elo es retrospectivo:</b> reacciona con rezago a cambios bruscos (nuevo DT, generación emergente). Ej.: el Elo de Brasil ya descuenta su mala eliminatoria, pero puede subestimar el efecto Ancelotti; el de España incorpora 30 partidos invicta.</li>
+<li><b>Calibración de la pendiente Elo→goles:</b> el valor 0.00275 viene de regresiones históricas sobre fútbol internacional general; en Mundiales la muestra es pequeña. Sensibilidad: ±10% en la pendiente mueve P(campeón) del favorito ~±1.5 pp.</li>
+<li><b>Independencia entre réplicas:</b> el modelo no actualiza el Elo dentro del torneo simulado; un equipo que "sorprende" en grupos no mejora su fuerza en KO. Esto comprime ligeramente las colas (los outsiders reales tienen algo más de varianza).</li>
+<li><b>Penales ~50/50:</b> decisión conservadora; si el lector cree en ventaja de favorito en penales, las probabilidades de los favoritos suben marginalmente.</li>
+<li><b>Asignación de terceros:</b> cuando varias asignaciones válidas existen, se elige una al azar entre las que cumplen las restricciones FIFA; el efecto en probabilidades agregadas es de segundo orden.</li>
+<li><b>Error muestral Monte Carlo:</b> con N=100.000, ±0.1–0.3 pp; despreciable frente a la incertidumbre estructural del modelo (±2–4 pp en favoritos).</li>
+</ul>
+
+<h3>Resultados de la validación (corrida de 100.000 simulaciones, 12-jun-2026)</h3>
+<ul>
+<li><b>Concordancia con el mercado:</b> correlación de log-odds modelo vs. probabilidades implícitas de mercado (48 equipos): <b>r = 0.854</b>. El overround del mercado retirado fue 1.173 (17.3% de margen en el outright de 48 selecciones).</li>
+<li><b>Tasa de empates:</b> P(empate) media en fase de grupos = <b>25.4%</b>, dentro del rango real de los Mundiales 2014–2022 (~22–25%): el modelo no es "miedoso" (no infla empates) ni los suprime.</li>
+<li><b>Distribución de confianza:</b> 22 partidos de confianza Alta, 31 Media y 19 Baja sobre 72. Los de mayor incertidumbre (favorito ≤39%): Cabo Verde–Arabia Saudita, Ecuador–Alemania, Colombia–Portugal, EE.UU.–Australia, Suiza–Canadá, Países Bajos–Japón.</li>
+<li><b>Divergencias sistemáticas vs. mercado (sesgos del Elo a vigilar):</b> el modelo es más bajo que el mercado en <b>Francia (−6.3 pp), Portugal (−4.6), Inglaterra (−3.6), Brasil (−3.1)</b> — el mercado pondera calidad de plantilla y los amistosos flojos castigan el Elo; y más alto en <b>Argentina (+3.7), Colombia (+2.9), Ecuador (+2.5)</b> — la eliminatoria CONMEBOL (larga, competitiva y con partidos oficiales que pesan mucho en Elo) tiende a inflar los ratings sudamericanos respecto a la percepción del mercado. La verdad probablemente está entre ambos.</li>
+</ul>
+
+<h3>Validación contra el mercado</h3>
+<p>La pestaña <b>Betting Edges</b> compara P(campeón) del modelo contra las probabilidades implícitas de DraftKings/BetMGM (11-jun-2026) normalizadas sin margen. Lectura honesta: el mercado de un Mundial es muy líquido y agrega información que este modelo no tiene (lesiones de última hora, alineaciones, información privada). Divergencias grandes deben leerse primero como <i>posible error del modelo</i> y solo después como ineficiencia del mercado. Los partidos de mayor incertidumbre (etiqueta "Baja" en confianza) son aquellos donde victoria local, empate y victoria visitante caen dentro de una banda de 15 puntos porcentuales.</p>

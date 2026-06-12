@@ -1,0 +1,18 @@
+{
+  "source": "https://www.eloratings.net/World.tsv (verificado con en.teams.tsv)",
+  "as_of_date": "2026-06-12 (Last-Modified: Fri, 12 Jun 2026 10:05:32 GMT)",
+  "ratings": {
+    "Mexico": 1881, "South Africa": 1511, "South Korea": 1786, "Czech Republic": 1712,
+    "Canada": 1788, "Bosnia and Herzegovina": 1595, "Qatar": 1421, "Switzerland": 1891,
+    "Brazil": 1991, "Morocco": 1827, "Haiti": 1548, "Scotland": 1782,
+    "United States": 1726, "Paraguay": 1834, "Australia": 1777, "Turkey": 1911,
+    "Germany": 1932, "Curacao": 1434, "Ivory Coast": 1695, "Ecuador": 1938,
+    "Netherlands": 1948, "Japan": 1906, "Sweden": 1712, "Tunisia": 1628,
+    "Belgium": 1894, "Egypt": 1696, "Iran": 1772, "New Zealand": 1562,
+    "Spain": 2157, "Cape Verde": 1578, "Saudi Arabia": 1576, "Uruguay": 1892,
+    "France": 2063, "Senegal": 1860, "Iraq": 1607, "Norway": 1914,
+    "Argentina": 2115, "Algeria": 1772, "Austria": 1830, "Jordan": 1680,
+    "Portugal": 1989, "DR Congo": 1652, "Uzbekistan": 1714, "Colombia": 1982,
+    "England": 2024, "Croatia": 1912, "Ghana": 1510, "Panama": 1730
+  }
+}

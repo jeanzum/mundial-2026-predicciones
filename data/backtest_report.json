@@ -1,0 +1,200 @@
+{
+ "dataset": "github.com/martj42/international_results (CC0), 1872-2026",
+ "elo_replica_validation": {
+  "n": 48,
+  "pearson_r": 0.9869,
+  "mean_abs_diff_pts": 93.6
+ },
+ "empirical_calibration": {
+  "general_competitive": {
+   "n": 12766,
+   "gd_slope": 0.005448539490458407,
+   "gd_slope_se": 6.0180081984272205e-05,
+   "mean_total_goals": 2.8154472818423937
+  },
+  "continental_finals": {
+   "n": 1345,
+   "gd_slope": 0.004986652717789749,
+   "gd_slope_se": 0.00019785077255778547,
+   "mean_total_goals": 2.513011152416357,
+   "draw_rate": 0.25576208178438664
+  }
+ },
+ "sensitivity_grid": [
+  {
+   "slope": 0.0045,
+   "rho": -0.1,
+   "brier": 0.5851,
+   "log_loss": 0.9917,
+   "pred_draw": 0.253
+  },
+  {
+   "slope": 0.0045,
+   "rho": -0.05,
+   "brier": 0.5851,
+   "log_loss": 0.9917,
+   "pred_draw": 0.253
+  },
+  {
+   "slope": 0.0045,
+   "rho": 0.0,
+   "brier": 0.5851,
+   "log_loss": 0.9917,
+   "pred_draw": 0.253
+  },
+  {
+   "slope": 0.0035,
+   "rho": -0.1,
+   "brier": 0.5896,
+   "log_loss": 0.9933,
+   "pred_draw": 0.262
+  },
+  {
+   "slope": 0.0035,
+   "rho": -0.05,
+   "brier": 0.5896,
+   "log_loss": 0.9933,
+   "pred_draw": 0.262
+  },
+  {
+   "slope": 0.0035,
+   "rho": 0.0,
+   "brier": 0.5896,
+   "log_loss": 0.9933,
+   "pred_draw": 0.262
+  },
+  {
+   "slope": 0.00499,
+   "rho": -0.1,
+   "brier": 0.5846,
+   "log_loss": 0.9954,
+   "pred_draw": 0.248
+  },
+  {
+   "slope": 0.00499,
+   "rho": -0.05,
+   "brier": 0.5846,
+   "log_loss": 0.9954,
+   "pred_draw": 0.248
+  },
+  {
+   "slope": 0.00499,
+   "rho": 0.0,
+   "brier": 0.5846,
+   "log_loss": 0.9954,
+   "pred_draw": 0.248
+  },
+  {
+   "slope": 0.00275,
+   "rho": -0.1,
+   "brier": 0.5966,
+   "log_loss": 1.0012,
+   "pred_draw": 0.267
+  },
+  {
+   "slope": 0.00275,
+   "rho": -0.05,
+   "brier": 0.5966,
+   "log_loss": 1.0012,
+   "pred_draw": 0.267
+  },
+  {
+   "slope": 0.00275,
+   "rho": 0.0,
+   "brier": 0.5966,
+   "log_loss": 1.0012,
+   "pred_draw": 0.267
+  }
+ ],
+ "engine_params": {
+  "gd_slope": 0.00444,
+  "base_total": 2.66,
+  "dc_rho": -0.1,
+  "home_elo_bonus": 65.0
+ },
+ "backtest": {
+  "2014": {
+   "n_matches": 64,
+   "brier": 0.5610704096443185,
+   "log_loss": 0.9444709843715736,
+   "accuracy_modal": 0.59375
+  },
+  "2018": {
+   "n_matches": 64,
+   "brier": 0.5850295419456921,
+   "log_loss": 0.9852276421529638,
+   "accuracy_modal": 0.515625
+  },
+  "2022": {
+   "n_matches": 64,
+   "brier": 0.6095397907241147,
+   "log_loss": 1.0447290995471252,
+   "accuracy_modal": 0.53125
+  },
+  "aggregate": {
+   "n_matches": 192,
+   "brier": 0.5852132474380417,
+   "log_loss": 0.9914759086905542,
+   "brier_uniform_baseline": 0.6667,
+   "log_loss_uniform_baseline": 1.0986,
+   "pred_draw_rate": 0.25345704753698167,
+   "obs_draw_rate": 0.21354166666666666,
+   "calibration": [
+    {
+     "bucket": "0-10%",
+     "n": 14,
+     "predicted_mid": 0.05,
+     "observed": 0.21428571428571427
+    },
+    {
+     "bucket": "10-20%",
+     "n": 69,
+     "predicted_mid": 0.15,
+     "observed": 0.17391304347826086
+    },
+    {
+     "bucket": "20-30%",
+     "n": 253,
+     "predicted_mid": 0.25,
+     "observed": 0.2134387351778656
+    },
+    {
+     "bucket": "30-40%",
+     "n": 73,
+     "predicted_mid": 0.35,
+     "observed": 0.3561643835616438
+    },
+    {
+     "bucket": "40-50%",
+     "n": 67,
+     "predicted_mid": 0.45,
+     "observed": 0.5373134328358209
+    },
+    {
+     "bucket": "50-60%",
+     "n": 61,
+     "predicted_mid": 0.55,
+     "observed": 0.5901639344262295
+    },
+    {
+     "bucket": "60-70%",
+     "n": 25,
+     "predicted_mid": 0.65,
+     "observed": 0.6
+    },
+    {
+     "bucket": "70-80%",
+     "n": 11,
+     "predicted_mid": 0.75,
+     "observed": 0.8181818181818182
+    },
+    {
+     "bucket": "80-90%",
+     "n": 3,
+     "predicted_mid": 0.85,
+     "observed": 0.3333333333333333
+    }
+   ]
+  }
+ }
+}

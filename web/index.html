@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mundial 2026 — Modelo Predictivo</title>
+<style>
+  :root {
+    --bg: #0b0f17; --panel: #121826; --panel2: #1a2234; --border: #233048;
+    --text: #e6ecf5; --muted: #8b9bb4; --accent: #4da3ff; --green: #3ddc84;
+    --red: #ff5c6c; --amber: #ffc24d; --purple: #b58cff;
+    font-size: 15px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 22px 28px 12px; border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 1.35rem; font-weight: 700; }
+  header .sub { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+  nav { display: flex; gap: 4px; padding: 10px 22px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  nav button {
+    background: none; border: none; color: var(--muted); padding: 10px 14px; cursor: pointer;
+    font-size: .9rem; border-bottom: 2px solid transparent; font-weight: 600;
+  }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  main { padding: 22px 28px 60px; max-width: 1280px; margin: 0 auto; }
+  .grid { display: grid; gap: 14px; }
+  .cards3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .card h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+  .big { font-size: 1.6rem; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { text-align: left; color: var(--muted); font-weight: 600; padding: 7px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: default; }
+  td { padding: 6px 8px; border-bottom: 1px solid #1b2435; white-space: nowrap; }
+  tr:hover td { background: #16203250; }
+  .bar { height: 8px; border-radius: 4px; background: var(--panel2); overflow: hidden; min-width: 70px; }
+  .bar > i { display: block; height: 100%; background: var(--accent); }
+  .pos { color: var(--green); } .neg { color: var(--red); } .mut { color: var(--muted); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .72rem; font-weight: 700; }
+  .pill.hi { background: #11352a; color: var(--green); }
+  .pill.md { background: #3a2f15; color: var(--amber); }
+  .pill.lo { background: #3a1a20; color: var(--red); }
+  .controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  select, input[type=text] {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 7px; padding: 7px 10px; font-size: .85rem;
+  }
+  .groups-grid { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+  .scorelist { display: flex; gap: 6px; flex-wrap: wrap; }
+  .scorelist span { background: var(--panel2); border-radius: 6px; padding: 2px 7px; font-size: .75rem; }
+  .scorelist span b { color: var(--accent); }
+  h2.section { font-size: 1.05rem; margin: 26px 0 12px; }
+  .note { color: var(--muted); font-size: .8rem; line-height: 1.5; margin-top: 8px; }
+  .bracket { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 12px; }
+  .round { min-width: 215px; }
+  .round h4 { color: var(--muted); font-size: .75rem; text-transform: uppercase; margin-bottom: 8px; }
+  .tie { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: .8rem; }
+  .tie .t { display: flex; justify-content: space-between; padding: 2px 0; }
+  .tie .t b { font-weight: 700; }
+  .prose { max-width: 860px; line-height: 1.65; font-size: .92rem; }
+  .prose h3 { margin: 20px 0 8px; font-size: 1rem; }
+  .prose p, .prose li { color: #c6d0e0; margin-bottom: 8px; }
+  .prose ul { padding-left: 20px; }
+  .prose code { background: var(--panel2); padding: 1px 6px; border-radius: 5px; font-size: .85em; }
+  .loading { padding: 60px; text-align: center; color: var(--muted); }
+  .flagname { display: flex; align-items: center; gap: 7px; }
+  .err { color: var(--red); padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏆 Mundial FIFA 2026 — Modelo Predictivo Cuantitativo</h1>
+  <div class="sub" id="meta">Cargando…</div>
+</header>
+<nav id="tabs"></nav>
+<main id="view"><div class="loading">Cargando results.json…</div></main>
+
+<script>
+const TABS = [
+  ["resumen", "Resumen"],
+  ["partidos", "Partidos"],
+  ["grupos", "Grupos"],
+  ["montecarlo", "Monte Carlo"],
+  ["bracket", "Bracket"],
+  ["edges", "Betting Edges"],
+  ["backtest", "Backtest"],
+  ["metodo", "Metodología y Validación"],
+];
+let DATA = null, active = "resumen";
+
+const pct = (x, d=1) => x == null ? "—" : (100*x).toFixed(d) + "%";
+const flag = t => (DATA.flags && DATA.flags[t]) ? DATA.flags[t] + " " : "";
+const team = t => `<span class="flagname">${flag(t)}${t}</span>`;
+const bar = (x, color) => `<div class="bar"><i style="width:${Math.min(100,100*x).toFixed(1)}%;${color?`background:${color}`:''}"></i></div>`;
+
+function nav() {
+  document.getElementById("tabs").innerHTML = TABS.map(([id, label]) =>
+    `<button class="${id===active?'active':''}" onclick="go('${id}')">${label}</button>`).join("");
+}
+function go(id) { active = id; location.hash = id; render(); }
+if (location.hash && TABS.some(([id]) => id === location.hash.slice(1))) active = location.hash.slice(1);
+
+function render() {
+  nav();
+  const v = document.getElementById("view");
+  if (!DATA) { v.innerHTML = '<div class="loading">Cargando…</div>'; return; }
+  v.innerHTML = ({resumen, partidos, grupos, montecarlo, bracket, edges, backtest, metodo})[active]();
+}
+
+function resumen() {
+  const top = [...DATA.teams].sort((a,b) => b.mc.champion - a.mc.champion).slice(0, 12);
+  const m = DATA.model_meta;
+  const next = DATA.matches.filter(x => !x.played).slice(0, 6);
+  return `
+  <div class="grid cards3">
+    <div class="card"><h3>Campeón más probable</h3>
+      <div class="big">${flag(top[0].name)}${top[0].name}</div>
+      <div class="mut">P(campeón) = <b class="pos">${pct(top[0].mc.champion)}</b> en ${m.n_sims.toLocaleString()} simulaciones</div></div>
+    <div class="card"><h3>Simulaciones Monte Carlo</h3>
+      <div class="big">${m.n_sims.toLocaleString()}</div>
+      <div class="mut">Modelo Elo + doble Poisson (Dixon-Coles) · datos al ${m.data_date}</div></div>
+    <div class="card"><h3>Partidos ya integrados</h3>
+      <div class="big">${DATA.matches.filter(x=>x.played).length}</div>
+      <div class="mut">Resultados reales incorporados a la simulación</div></div>
+  </div>
+  <h2 class="section">Probabilidad de ser campeón (top 12): modelo, mercado y ensemble</h2>
+  <div class="card"><table>
+    <tr><th>Equipo</th><th>Modelo</th><th></th><th>Mercado (sin margen)</th><th>Ensemble ★</th><th>Diferencia</th><th>Elo</th></tr>
+    ${top.map(t => {
+      const diff = t.market_implied != null ? t.mc.champion - t.market_implied : null;
+      return `<tr><td>${team(t.name)}</td><td><b>${pct(t.mc.champion)}</b></td>
+      <td>${bar(t.mc.champion/top[0].mc.champion*0.95)}</td>
+      <td>${pct(t.market_implied)}</td>
+      <td><b class="pos">${pct(t.champion_ensemble)}</b></td>
+      <td class="${diff>0?'pos':'neg'}">${diff==null?'—':(diff>0?'+':'')+(100*diff).toFixed(1)+' pp'}</td>
+      <td class="mut">${t.elo}</td></tr>`;}).join("")}
+  </table>
+  <div class="note">“Mercado” = probabilidad implícita de odds de cierre (DraftKings 11-jun-2026), normalizada sin margen. <b>Ensemble ★</b> = combinación log-odds 50/50 modelo+mercado, renormalizada — la estimación recomendada: la literatura de forecasting muestra que supera a ambos componentes por separado. Diferencia = modelo − mercado.</div></div>
+  <h2 class="section">Próximos partidos</h2>
+  <div class="card"><table>
+    <tr><th>Fecha</th><th>Grupo</th><th>Partido</th><th>1</th><th>X</th><th>2</th><th>Marcador modal</th></tr>
+    ${next.map(x => `<tr><td class="mut">${x.date}</td><td>${x.group}</td>
+      <td>${flag(x.home)}${x.home} – ${flag(x.away)}${x.away}</td>
+      <td><b>${pct(x.p_home)}</b></td><td>${pct(x.p_draw)}</td><td><b>${pct(x.p_away)}</b></td>
+      <td>${x.top_scores[0][0]} <span class="mut">(${pct(x.top_scores[0][1])})</span></td></tr>`).join("")}
+  </table></div>`;
+}
+
+function matchRows() {
+  return DATA.matches
+    .filter(x => !window._fg || x.group === window._fg)
+    .filter(x => !window._ft || (x.home + x.away).toLowerCase().includes(window._ft.toLowerCase()))
+    .map(x => `<tr>
+    <td class="mut">${x.match}</td><td class="mut">${x.date}</td><td>${x.group}</td>
+    <td>${flag(x.home)}${x.home} – ${flag(x.away)}${x.away}</td>
+    <td class="mut">${x.elo_home}–${x.elo_away}</td>
+    <td class="mut">${x.lam_home.toFixed(2)}–${x.lam_away.toFixed(2)}</td>
+    <td><b>${pct(x.p_home,0)}</b></td><td>${pct(x.p_draw,0)}</td><td><b>${pct(x.p_away,0)}</b></td>
+    <td class="mut">${pct(x.over25,0)}</td><td class="mut">${pct(x.btts,0)}</td>
+    <td><div class="scorelist">${x.top_scores.map(s => `<span><b>${s[0]}</b> ${pct(s[1],0)}</span>`).join("")}</div></td>
+    <td><span class="pill ${x.confidence==='Alta'?'hi':x.confidence==='Media'?'md':'lo'}">${x.confidence}</span></td>
+    <td>${x.played ? `<b>${x.score}</b>` : '<span class="mut">—</span>'}</td>
+    </tr>`).join("");
+}
+function refilter() { document.getElementById("mrows").innerHTML = matchRows(); }
+
+function partidos() {
+  const groups = [...new Set(DATA.matches.map(x => x.group))];
+  return `
+  <div class="controls">
+    <select id="fGroup" onchange="window._fg=this.value;refilter()">
+      <option value="">Todos los grupos</option>
+      ${groups.map(g => `<option ${window._fg===g?'selected':''}>${g}</option>`).join("")}
+    </select>
+    <input type="text" id="fTeam" placeholder="Filtrar equipo…" value="${window._ft||''}" oninput="window._ft=this.value;refilter()">
+  </div>
+  <div class="card" style="overflow-x:auto"><table>
+    <thead><tr><th>#</th><th>Fecha</th><th>Gr</th><th>Partido</th><th>Elo</th><th>xG modelo</th>
+    <th>1</th><th>X</th><th>2</th><th>O2.5</th><th>BTTS</th><th>Top marcadores</th><th>Confianza</th><th>Real</th></tr></thead>
+    <tbody id="mrows">${matchRows()}</tbody>
+  </table>
+  <div class="note">xG modelo = goles esperados del modelo (no xG observado de proveedor). Confianza: Alta = favorito ≥55%, Baja = los tres resultados dentro de 15 pp.</div></div>`;
+}
+
+function grupos() {
+  return `<div class="grid groups-grid">
+  ${Object.entries(DATA.groups).map(([g, rows]) => `
+    <div class="card"><h3>Grupo ${g}</h3><table>
+      <tr><th>Equipo</th><th>Pts esp.</th><th>1º</th><th>2º</th><th>Avanza</th></tr>
+      ${rows.map(r => `<tr><td>${team(r.team)}</td><td>${r.exp_pts.toFixed(2)}</td>
+        <td>${pct(r.p_first,0)}</td><td>${pct(r.p_second,0)}</td>
+        <td><b class="${r.p_advance>0.5?'pos':''}">${pct(r.p_advance,0)}</b></td></tr>`).join("")}
+    </table></div>`).join("")}
+  </div>
+  <div class="note">“Avanza” incluye clasificación directa (top 2) y como uno de los 8 mejores terceros. Puntos esperados = media sobre todas las simulaciones (incluye resultados reales ya jugados).</div>`;
+}
+
+function montecarlo() {
+  const rows = [...DATA.teams].sort((a,b) => b.mc.champion - a.mc.champion || b.mc.final - a.mc.final || b.mc.sf - a.mc.sf);
+  return `<div class="card" style="overflow-x:auto"><table>
+    <tr><th>Equipo</th><th>Grupo</th><th>Elo</th><th>FIFA</th><th>Avanza</th><th>Octavos</th><th>Cuartos</th><th>Semis</th><th>Final</th><th>Campeón</th><th>Ensemble ★</th><th></th></tr>
+    ${rows.map(t => `<tr><td>${team(t.name)}</td><td>${t.group}</td><td class="mut">${t.elo}</td><td class="mut">${t.fifa_rank ?? '—'}</td>
+      <td>${pct(t.mc.r32)}</td><td>${pct(t.mc.r16)}</td><td>${pct(t.mc.qf)}</td>
+      <td>${pct(t.mc.sf)}</td><td>${pct(t.mc.final)}</td><td><b>${pct(t.mc.champion)}</b></td>
+      <td><b class="pos">${pct(t.champion_ensemble)}</b></td>
+      <td>${bar(t.mc.champion / rows[0].mc.champion, 'var(--purple)')}</td></tr>`).join("")}
+  </table>
+  <div class="note">Frecuencias sobre ${DATA.model_meta.n_sims.toLocaleString()} torneos simulados. Error estándar Monte Carlo ≈ √(p(1−p)/N): para p=20% con N=100.000 es ±0,13 pp — la incertidumbre dominante es la del modelo, no la del muestreo.</div></div>`;
+}
+
+function bracket() {
+  if (!DATA.bracket_view) return '<div class="err">Sin datos de bracket</div>';
+  return `<div class="note" style="margin-bottom:12px">Bracket modal: en cada llave se muestra el cruce más frecuente en las simulaciones y la probabilidad de que cada equipo alcance esa ronda. Es ilustrativo — las probabilidades de la pestaña Monte Carlo son la salida principal del modelo.</div>
+  <div class="bracket">
+  ${DATA.bracket_view.map(r => `<div class="round"><h4>${r.round}</h4>
+    ${r.ties.map(t => `<div class="tie">
+      <div class="t"><span>${flag(t.a)}${t.a}</span><b>${pct(t.pa,0)}</b></div>
+      <div class="t"><span>${flag(t.b)}${t.b}</span><b>${pct(t.pb,0)}</b></div>
+    </div>`).join("")}</div>`).join("")}
+  </div>`;
+}
+
+function edges() {
+  return `<div class="card" style="overflow-x:auto"><table>
+    <tr><th>Tipo</th><th>Selección</th><th>P. modelo</th><th>P. mercado (sin margen)</th><th>Edge</th><th>Odds justas modelo</th><th>Odds mercado</th></tr>
+    ${DATA.edges.map(e => `<tr><td class="mut">${e.type}</td><td>${team(e.team)}</td>
+      <td><b>${pct(e.model_p)}</b></td><td>${pct(e.market_p)}</td>
+      <td class="${e.edge>0?'pos':'neg'}"><b>${(e.edge>0?'+':'')+(100*e.edge).toFixed(1)} pp</b></td>
+      <td>${e.model_p > 0 ? (1/e.model_p).toFixed(1) : '—'}</td><td class="mut">${e.market_odds}</td></tr>`).join("")}
+  </table>
+  <div class="note">⚠️ Un “edge” positivo significa que el modelo asigna más probabilidad que el mercado. NO es una recomendación de apuesta: el mercado agrega información (lesiones de último minuto, alineaciones) que un modelo Elo no captura. Edges &lt; 3 pp son ruido de calibración.</div></div>`;
+}
+
+function backtest() {
+  const b = DATA.backtest;
+  if (!b) return '<div class="err">Sin backtest — ejecutá model/backtest.py</div>';
+  const ag = b.backtest.aggregate;
+  const cal = b.empirical_calibration;
+  return `
+  <div class="grid cards3">
+    <div class="card"><h3>Brier score (192 partidos de test)</h3>
+      <div class="big">${ag.brier.toFixed(4)}</div>
+      <div class="mut">vs ${ag.brier_uniform_baseline} del baseline uniforme (menor = mejor)</div></div>
+    <div class="card"><h3>Log loss</h3>
+      <div class="big">${ag.log_loss.toFixed(4)}</div>
+      <div class="mut">vs ${ag.log_loss_uniform_baseline} del baseline uniforme</div></div>
+    <div class="card"><h3>Réplica Elo vs oficial</h3>
+      <div class="big">r = ${b.elo_replica_validation.pearson_r}</div>
+      <div class="mut">48 equipos, correlación con eloratings.net</div></div>
+  </div>
+  <h2 class="section">Resultados por Mundial (out-of-sample)</h2>
+  <div class="card"><table>
+    <tr><th>Mundial</th><th>Partidos</th><th>Brier</th><th>Log loss</th><th>Acierto del resultado modal</th></tr>
+    ${["2014","2018","2022"].map(y => { const x = b.backtest[y]; return `<tr>
+      <td><b>${y}</b></td><td>${x.n_matches}</td><td>${x.brier.toFixed(4)}</td>
+      <td>${x.log_loss.toFixed(4)}</td><td>${pct(x.accuracy_modal)}</td></tr>`;}).join("")}
+  </table>
+  <div class="note">Protocolo: Elo recalculado desde 1872 con el dataset martj42/international_results (CC0); cada Mundial se predice con el rating vigente el día previo al torneo. Los parámetros del modelo se calibraron en finales continentales 2006–2025 (Euro, Copa América, AFCON, etc.) — los Mundiales nunca entraron a la calibración. Empates: predicho ${pct(ag.pred_draw_rate)} vs observado ${pct(ag.obs_draw_rate)}.</div></div>
+  <h2 class="section">Calibración: probabilidad predicha vs frecuencia observada</h2>
+  <div class="card"><table>
+    <tr><th>Bucket predicho</th><th>N</th><th>Centro del bucket</th><th>Frecuencia observada</th><th></th></tr>
+    ${ag.calibration.map(c => `<tr><td>${c.bucket}</td><td class="mut">${c.n}</td>
+      <td>${pct(c.predicted_mid)}</td><td><b>${pct(c.observed)}</b></td>
+      <td>${bar(c.observed, Math.abs(c.observed - c.predicted_mid) < 0.07 ? 'var(--green)' : 'var(--amber)')}</td></tr>`).join("")}
+  </table>
+  <div class="note">Un modelo bien calibrado tiene frecuencia observada ≈ centro del bucket. Verde = desvío &lt; 7 pp.</div></div>
+  <h2 class="section">Calibración empírica de parámetros</h2>
+  <div class="card"><table>
+    <tr><th>Muestra</th><th>N</th><th>Pendiente GD/ΔElo</th><th>Error estándar</th><th>Goles totales medios</th></tr>
+    <tr><td>Competitivos 2006–2025 (incl. eliminatorias)</td><td>${cal.general_competitive.n.toLocaleString()}</td>
+      <td>${cal.general_competitive.gd_slope.toFixed(5)}</td><td>±${cal.general_competitive.gd_slope_se.toFixed(5)}</td>
+      <td>${cal.general_competitive.mean_total_goals.toFixed(2)}</td></tr>
+    <tr><td><b>Finales continentales 2006–2025 (usada)</b></td><td>${cal.continental_finals.n.toLocaleString()}</td>
+      <td><b>${cal.continental_finals.gd_slope.toFixed(5)}</b></td><td>±${cal.continental_finals.gd_slope_se.toFixed(5)}</td>
+      <td>${cal.continental_finals.mean_total_goals.toFixed(2)}</td></tr>
+  </table>
+  <div class="note">La pendiente de finales continentales (entorno comparable a un Mundial: sede neutral, equipos parejos) se transfirió a la escala del Elo oficial dividiendo por el factor de escala medido (1.1236) → <b>0.00444</b> usado en el motor. El grid de sensibilidad sobre el test confirmó el óptimo en ~0.0045 de forma independiente.</div></div>`;
+}
+
+function metodo() { return `<div class="prose">${DATA.methodology_html}</div>`; }
+
+fetch("results.json").then(r => r.json()).then(d => {
+  DATA = d;
+  document.getElementById("meta").textContent =
+    `Generado: ${d.model_meta.generated_at} · Elo al ${d.model_meta.data_date} · ${d.model_meta.n_sims.toLocaleString()} simulaciones · Fuentes: eloratings.net, FIFA, DraftKings/BetMGM`;
+  render();
+}).catch(e => {
+  document.getElementById("view").innerHTML = `<div class="err">No se pudo cargar results.json (${e}).<br>Ejecutá el pipeline: <code>.venv/bin/python model/run_model.py</code> y serví la carpeta web.</div>`;
+});
+nav();
+</script>
+</body>
+</html>
