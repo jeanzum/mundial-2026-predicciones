@@ -117,6 +117,15 @@
   .mc-scorelist span.top { outline: 1px solid var(--accent); }
   .mc-tname .flagname { min-width: 0; overflow: hidden; }
   .mc, .mc-grid, .mc-teams, .mc-probbar { max-width: 100%; }
+  .mc-dates { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .mc-datechip { background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
+    border-radius: 8px; padding: 6px 11px; cursor: pointer; font-size: .8rem; font-weight: 700;
+    white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .mc-datechip:hover { border-color: var(--accent); color: var(--text); }
+  .mc-datechip.active { background: var(--accent); color: #06182e; border-color: var(--accent); }
+  .mc-datechip .cnt { font-size: .66rem; font-weight: 700; opacity: .7;
+    background: #ffffff14; border-radius: 5px; padding: 1px 5px; }
+  .mc-datechip.active .cnt { background: #06182e26; opacity: .9; }
   @media (max-width: 640px) {
     html, body { overflow-x: hidden; }
     header { padding: 16px 14px 10px; }
@@ -125,6 +134,8 @@
     nav { padding: 8px 8px 0; gap: 2px; }
     nav button { padding: 8px 9px; font-size: .82rem; }
     main { padding: 16px 12px 50px; }
+    .mc-dates { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .mc-datechip { flex: 0 0 auto; }
     .mc-grid { grid-template-columns: 1fr; }
     .mc { padding: 13px; }
     .mc-teams { gap: 6px; }
@@ -274,8 +285,17 @@ function matchCard(x) {
   </div>`;
 }
 
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const DIAS = ["dom","lun","mar","mié","jue","vie","sáb"];
+function fmtDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const wd = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return `${DIAS[wd]} ${d} ${MESES[m - 1]}`;
+}
+
 function matchCards() {
   const list = DATA.matches
+    .filter(x => !window._fd || x.date === window._fd)
     .filter(x => !window._fg || x.group === window._fg)
     .filter(x => !window._ft || (x.home + x.away).toLowerCase().includes(window._ft.toLowerCase()));
   if (!list.length) return '<div class="mc-empty">No hay partidos que coincidan con el filtro.</div>';
@@ -283,9 +303,30 @@ function matchCards() {
 }
 function refilter() { document.getElementById("mcards").innerHTML = matchCards(); }
 
+function dateTabs() {
+  const dates = [...new Set(DATA.matches.map(x => x.date))].sort();
+  const chip = (val, label, count, played) =>
+    `<button class="mc-datechip ${window._fd === val ? 'active' : ''}" onclick="setDate('${val}')">
+       ${label}<span class="cnt">${count}${played ? ' ✓' : ''}</span></button>`;
+  const total = DATA.matches.length;
+  let html = chip("", "Todas", total, false);
+  for (const d of dates) {
+    const ms = DATA.matches.filter(x => x.date === d);
+    const allPlayed = ms.every(x => x.played);
+    html += chip(d, fmtDate(d), ms.length, allPlayed);
+  }
+  return html;
+}
+function setDate(d) {
+  window._fd = d;
+  document.getElementById("mdates").innerHTML = dateTabs();
+  refilter();
+}
+
 function partidos() {
   const groups = [...new Set(DATA.matches.map(x => x.group))];
   return `
+  <div class="mc-dates" id="mdates">${dateTabs()}</div>
   <div class="controls">
     <select id="fGroup" onchange="window._fg=this.value;refilter()">
       <option value="">Todos los grupos</option>
