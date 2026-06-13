@@ -1,6 +1,6 @@
 {
  "source": "ESPN public API (site.api.espn.com, fifa.world scoreboard)",
- "as_of": "2026-06-12",
+ "as_of": "2026-06-13",
  "matches": [
   {
    "date": "2026-06-11",
@@ -19,6 +19,24 @@
    "home_goals": 2,
    "away_goals": 1,
    "source": "ESPN API scoreboard 2026-06-11"
+  },
+  {
+   "date": "2026-06-12",
+   "group": "B",
+   "home": "Canada",
+   "away": "Bosnia and Herzegovina",
+   "home_goals": 1,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-12"
+  },
+  {
+   "date": "2026-06-12",
+   "group": "D",
+   "home": "United States",
+   "away": "Paraguay",
+   "home_goals": 4,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-12"
   }
  ]
 }
