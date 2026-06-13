@@ -64,6 +64,75 @@
   .loading { padding: 60px; text-align: center; color: var(--muted); }
   .flagname { display: flex; align-items: center; gap: 7px; }
   .err { color: var(--red); padding: 40px; text-align: center; }
+
+  /* ===== Match cards (pestaña Partidos) ===== */
+  .mc-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+  .mc-empty { color: var(--muted); padding: 40px; text-align: center; border: 1px dashed var(--border); border-radius: 10px; }
+  .mc {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 11px;
+    transition: border-color .15s, transform .15s;
+  }
+  .mc:hover { border-color: #34466a; transform: translateY(-1px); }
+  .mc.played { border-left: 3px solid var(--green); }
+  /* top meta row */
+  .mc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .mc-meta { color: var(--muted); font-size: .74rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .mc-grp { background: var(--panel2); border-radius: 6px; padding: 1px 7px; font-weight: 700; color: var(--text); }
+  .mc-final { background: var(--green); color: #06231a; border-radius: 6px; padding: 2px 8px; font-size: .66rem; font-weight: 800; letter-spacing: .06em; }
+  .mc-upcoming { color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  /* teams + score */
+  .mc-teams { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+  .mc-team { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .mc-team.away { align-items: flex-end; text-align: right; }
+  .mc-tname { font-weight: 700; font-size: .98rem; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mc-team.away .mc-tname { flex-direction: row-reverse; }
+  .mc-elo { color: var(--muted); font-size: .68rem; }
+  .mc-score { text-align: center; min-width: 64px; }
+  .mc-score .real { font-size: 1.7rem; font-weight: 800; line-height: 1; letter-spacing: .02em; }
+  .mc-score .pred { font-size: 1.25rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .mc-score .lbl { color: var(--muted); font-size: .6rem; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+  .mc-score .pred-mini { color: var(--muted); font-size: .68rem; margin-top: 4px; }
+  .mc-score .pred-mini b { color: var(--accent); }
+  .mc-hit { color: var(--green); } .mc-miss { color: var(--muted); }
+  /* tripartite probability bar */
+  .mc-probbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--panel2); }
+  .mc-probbar > i { display: block; height: 100%; }
+  .mc-probbar .ph { background: var(--accent); }
+  .mc-probbar .px { background: var(--muted); }
+  .mc-probbar .pa { background: var(--purple); }
+  .mc-problbl { display: flex; justify-content: space-between; font-size: .72rem; }
+  .mc-problbl span { display: flex; align-items: center; gap: 5px; }
+  .mc-problbl .dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .mc-problbl .dh { background: var(--accent); } .mc-problbl .dx { background: var(--muted); } .mc-problbl .da { background: var(--purple); }
+  .mc-problbl b { font-weight: 700; }
+  /* secondary stats */
+  .mc-stats { display: flex; gap: 14px; font-size: .74rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; flex-wrap: wrap; }
+  .mc-stats .s b { color: var(--text); font-weight: 700; }
+  .mc-stats .s small { display: block; font-size: .64rem; text-transform: uppercase; letter-spacing: .04em; }
+  .mc-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .mc-scorelist { display: flex; gap: 5px; flex-wrap: wrap; }
+  .mc-scorelist span { background: var(--panel2); border-radius: 6px; padding: 2px 7px; font-size: .7rem; white-space: nowrap; }
+  .mc-scorelist span b { color: var(--accent); }
+  .mc-scorelist span.top { outline: 1px solid var(--accent); }
+  .mc-tname .flagname { min-width: 0; overflow: hidden; }
+  .mc, .mc-grid, .mc-teams, .mc-probbar { max-width: 100%; }
+  @media (max-width: 640px) {
+    html, body { overflow-x: hidden; }
+    header { padding: 16px 14px 10px; }
+    header h1 { font-size: 1.1rem; }
+    header .sub { font-size: .76rem; }
+    nav { padding: 8px 8px 0; gap: 2px; }
+    nav button { padding: 8px 9px; font-size: .82rem; }
+    main { padding: 16px 12px 50px; }
+    .mc-grid { grid-template-columns: 1fr; }
+    .mc { padding: 13px; }
+    .mc-teams { gap: 6px; }
+    .mc-tname { font-size: .88rem; white-space: normal; line-height: 1.15; }
+    .mc-score { min-width: 52px; }
+    .mc-score .lbl, .mc-score .pred-mini { font-size: .56rem; }
+    .mc-stats { gap: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -145,23 +214,74 @@ function resumen() {
   </table></div>`;
 }
 
-function matchRows() {
-  return DATA.matches
-    .filter(x => !window._fg || x.group === window._fg)
-    .filter(x => !window._ft || (x.home + x.away).toLowerCase().includes(window._ft.toLowerCase()))
-    .map(x => `<tr>
-    <td class="mut">${x.match}</td><td class="mut">${x.date}</td><td>${x.group}</td>
-    <td>${flag(x.home)}${x.home} – ${flag(x.away)}${x.away}</td>
-    <td class="mut">${x.elo_home}–${x.elo_away}</td>
-    <td class="mut">${x.lam_home.toFixed(2)}–${x.lam_away.toFixed(2)}</td>
-    <td><b>${pct(x.p_home,0)}</b></td><td>${pct(x.p_draw,0)}</td><td><b>${pct(x.p_away,0)}</b></td>
-    <td class="mut">${pct(x.over25,0)}</td><td class="mut">${pct(x.btts,0)}</td>
-    <td><div class="scorelist">${x.top_scores.map(s => `<span><b>${s[0]}</b> ${pct(s[1],0)}</span>`).join("")}</div></td>
-    <td><span class="pill ${x.confidence==='Alta'?'hi':x.confidence==='Media'?'md':'lo'}">${x.confidence}</span></td>
-    <td>${x.played ? `<b>${x.score}</b>` : '<span class="mut">—</span>'}</td>
-    </tr>`).join("");
+function matchCard(x) {
+  const conf = x.confidence === 'Alta' ? 'hi' : x.confidence === 'Media' ? 'md' : 'lo';
+  // tripartite probability bar (local / empate / visitante)
+  const ph = (100 * x.p_home).toFixed(1), px = (100 * x.p_draw).toFixed(1), pa = (100 * x.p_away).toFixed(1);
+  const top = x.top_scores[0];
+  // score block: played → resultado real grande + lo que predecía el modelo; próximo → marcador modal
+  let scoreBlock;
+  if (x.played && x.score) {
+    const hit = x.score === top[0];
+    scoreBlock = `
+      <div class="real">${x.score}</div>
+      <div class="lbl">resultado real</div>
+      <div class="pred-mini">modelo: <b>${top[0]}</b> <span class="${hit ? 'mc-hit' : 'mc-miss'}">${hit ? '✓' : '✗'}</span></div>`;
+  } else {
+    scoreBlock = `
+      <div class="pred">${top[0]}</div>
+      <div class="lbl">marcador probable</div>
+      <div class="pred-mini">${pct(top[1], 0)} prob.</div>`;
+  }
+  return `
+  <div class="mc${x.played ? ' played' : ''}">
+    <div class="mc-top">
+      <div class="mc-meta"><span class="mc-grp">Grupo ${x.group}</span><span>📅 ${x.date}</span><span>#${x.match}</span></div>
+      ${x.played ? '<span class="mc-final">FINAL</span>' : '<span class="mc-upcoming">Próximo</span>'}
+    </div>
+    <div class="mc-teams">
+      <div class="mc-team home">
+        <div class="mc-tname">${team(x.home)}</div>
+        <div class="mc-elo">Elo ${x.elo_home}</div>
+      </div>
+      <div class="mc-score">${scoreBlock}</div>
+      <div class="mc-team away">
+        <div class="mc-tname">${team(x.away)}</div>
+        <div class="mc-elo">Elo ${x.elo_away}</div>
+      </div>
+    </div>
+    <div>
+      <div class="mc-probbar">
+        <i class="ph" style="width:${ph}%"></i><i class="px" style="width:${px}%"></i><i class="pa" style="width:${pa}%"></i>
+      </div>
+      <div class="mc-problbl" style="margin-top:6px">
+        <span><i class="dot dh"></i>1 <b>${pct(x.p_home, 0)}</b></span>
+        <span><i class="dot dx"></i>X <b>${pct(x.p_draw, 0)}</b></span>
+        <span><i class="dot da"></i>2 <b>${pct(x.p_away, 0)}</b></span>
+      </div>
+    </div>
+    <div class="mc-stats">
+      <div class="s"><small>xG modelo</small><b>${x.lam_home.toFixed(2)}–${x.lam_away.toFixed(2)}</b></div>
+      <div class="s"><small>Over 2.5</small><b>${pct(x.over25, 0)}</b></div>
+      <div class="s"><small>Ambos anotan</small><b>${pct(x.btts, 0)}</b></div>
+      <div class="s"><small>Confianza</small><span class="pill ${conf}">${x.confidence}</span></div>
+    </div>
+    <div class="mc-foot">
+      <div class="mc-scorelist">
+        ${x.top_scores.map((s, i) => `<span class="${i === 0 ? 'top' : ''}"><b>${s[0]}</b> ${pct(s[1], 0)}</span>`).join("")}
+      </div>
+    </div>
+  </div>`;
 }
-function refilter() { document.getElementById("mrows").innerHTML = matchRows(); }
+
+function matchCards() {
+  const list = DATA.matches
+    .filter(x => !window._fg || x.group === window._fg)
+    .filter(x => !window._ft || (x.home + x.away).toLowerCase().includes(window._ft.toLowerCase()));
+  if (!list.length) return '<div class="mc-empty">No hay partidos que coincidan con el filtro.</div>';
+  return list.map(matchCard).join("");
+}
+function refilter() { document.getElementById("mcards").innerHTML = matchCards(); }
 
 function partidos() {
   const groups = [...new Set(DATA.matches.map(x => x.group))];
@@ -173,12 +293,8 @@ function partidos() {
     </select>
     <input type="text" id="fTeam" placeholder="Filtrar equipo…" value="${window._ft||''}" oninput="window._ft=this.value;refilter()">
   </div>
-  <div class="card" style="overflow-x:auto"><table>
-    <thead><tr><th>#</th><th>Fecha</th><th>Gr</th><th>Partido</th><th>Elo</th><th>xG modelo</th>
-    <th>1</th><th>X</th><th>2</th><th>O2.5</th><th>BTTS</th><th>Top marcadores</th><th>Confianza</th><th>Real</th></tr></thead>
-    <tbody id="mrows">${matchRows()}</tbody>
-  </table>
-  <div class="note">xG modelo = goles esperados del modelo (no xG observado de proveedor). Confianza: Alta = favorito ≥55%, Baja = los tres resultados dentro de 15 pp.</div></div>`;
+  <div class="mc-grid" id="mcards">${matchCards()}</div>
+  <div class="note">Barra de probabilidad: <b style="color:var(--accent)">azul</b> = gana local (1), <b style="color:var(--muted)">gris</b> = empate (X), <b style="color:var(--purple)">violeta</b> = gana visitante (2). xG modelo = goles esperados del modelo (no xG observado de proveedor). Confianza: Alta = favorito ≥55%, Baja = los tres resultados dentro de 15 pp. En partidos jugados, ✓/✗ indica si el marcador modal del modelo coincidió con el resultado real.</div>`;
 }
 
 function grupos() {
