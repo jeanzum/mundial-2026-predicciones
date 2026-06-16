@@ -1,6 +1,6 @@
 {
  "source": "ESPN public API (site.api.espn.com, fifa.world scoreboard)",
- "as_of": "2026-06-13",
+ "as_of": "2026-06-16",
  "matches": [
   {
    "date": "2026-06-11",
@@ -37,6 +37,114 @@
    "home_goals": 4,
    "away_goals": 1,
    "source": "ESPN API scoreboard 2026-06-12"
+  },
+  {
+   "date": "2026-06-13",
+   "group": "B",
+   "home": "Qatar",
+   "away": "Switzerland",
+   "home_goals": 1,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-13"
+  },
+  {
+   "date": "2026-06-13",
+   "group": "C",
+   "home": "Brazil",
+   "away": "Morocco",
+   "home_goals": 1,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-13"
+  },
+  {
+   "date": "2026-06-13",
+   "group": "C",
+   "home": "Haiti",
+   "away": "Scotland",
+   "home_goals": 0,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-13"
+  },
+  {
+   "date": "2026-06-14",
+   "group": "D",
+   "home": "Australia",
+   "away": "Turkey",
+   "home_goals": 2,
+   "away_goals": 0,
+   "source": "ESPN API scoreboard 2026-06-14"
+  },
+  {
+   "date": "2026-06-14",
+   "group": "E",
+   "home": "Germany",
+   "away": "Curacao",
+   "home_goals": 7,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-14"
+  },
+  {
+   "date": "2026-06-14",
+   "group": "F",
+   "home": "Netherlands",
+   "away": "Japan",
+   "home_goals": 2,
+   "away_goals": 2,
+   "source": "ESPN API scoreboard 2026-06-14"
+  },
+  {
+   "date": "2026-06-14",
+   "group": "E",
+   "home": "Ivory Coast",
+   "away": "Ecuador",
+   "home_goals": 1,
+   "away_goals": 0,
+   "source": "ESPN API scoreboard 2026-06-14"
+  },
+  {
+   "date": "2026-06-14",
+   "group": "F",
+   "home": "Sweden",
+   "away": "Tunisia",
+   "home_goals": 5,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-14"
+  },
+  {
+   "date": "2026-06-15",
+   "group": "H",
+   "home": "Spain",
+   "away": "Cape Verde",
+   "home_goals": 0,
+   "away_goals": 0,
+   "source": "ESPN API scoreboard 2026-06-15"
+  },
+  {
+   "date": "2026-06-15",
+   "group": "G",
+   "home": "Belgium",
+   "away": "Egypt",
+   "home_goals": 1,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-15"
+  },
+  {
+   "date": "2026-06-15",
+   "group": "H",
+   "home": "Saudi Arabia",
+   "away": "Uruguay",
+   "home_goals": 1,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-15"
+  },
+  {
+   "date": "2026-06-15",
+   "group": "G",
+   "home": "Iran",
+   "away": "New Zealand",
+   "home_goals": 2,
+   "away_goals": 2,
+   "source": "ESPN API scoreboard 2026-06-15"
   }
  ]
 }
