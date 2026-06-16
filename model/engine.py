@@ -43,6 +43,31 @@ MAX_GOALS = 10              # truncamiento de la matriz de marcadores
 HOSTS = {"Mexico", "United States", "Canada"}
 
 
+def _g_mult(gd: int) -> float:
+    """Multiplicador por margen de gol (eloratings.net)."""
+    gd = abs(gd)
+    if gd <= 1:
+        return 1.0
+    if gd == 2:
+        return 1.5
+    return (11 + gd) / 8.0
+
+
+def apply_match_elo(R: dict, home: str, away: str, hg: int, ag: int,
+                    host_a: bool = False, host_b: bool = False, k: float = 60.0) -> None:
+    """Actualiza in-place el dict de Elo R tras un partido real (fórmula
+    eloratings.net). K=60 es el valor estándar para fase final de Mundial.
+    La localía usa el mismo HOME_ELO_BONUS que el modelo (solo anfitriones)."""
+    ha = HOME_ELO_BONUS if host_a else 0.0
+    hb = HOME_ELO_BONUS if host_b else 0.0
+    dr = (R[home] + ha) - (R[away] + hb)
+    we = 1.0 / (1.0 + 10 ** (-dr / 400.0))
+    w = 1.0 if hg > ag else (0.0 if ag > hg else 0.5)
+    delta = k * _g_mult(hg - ag) * (w - we)
+    R[home] += delta
+    R[away] -= delta
+
+
 def expected_lambdas(elo_a: float, elo_b: float,
                      form_a: float = 0.0, form_b: float = 0.0,
                      host_a: bool = False, host_b: bool = False,

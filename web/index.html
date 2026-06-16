@@ -198,10 +198,14 @@ function resumen() {
     <div class="card"><h3>Simulaciones Monte Carlo</h3>
       <div class="big">${m.n_sims.toLocaleString()}</div>
       <div class="mut">Modelo Elo + doble Poisson (Dixon-Coles) · datos al ${m.data_date}</div></div>
-    <div class="card"><h3>Partidos ya integrados</h3>
+    ${DATA.accuracy ? `<div class="card"><h3>Precisión real hasta ahora</h3>
+      <div class="big">${pct(DATA.accuracy.hits_1x2/DATA.accuracy.n_played,0)} <span class="mut" style="font-size:.9rem">resultado (1X2)</span></div>
+      <div class="mut">${DATA.accuracy.hits_1x2}/${DATA.accuracy.n_played} acertados (${DATA.accuracy.hits_exact} marcadores exactos). Baseline solo-Elo: ${DATA.accuracy.baseline_elo_hits}/${DATA.accuracy.n_played}. ${DATA.accuracy.draws_real}/${DATA.accuracy.n_played} fueron empates.</div></div>`
+    : `<div class="card"><h3>Partidos ya integrados</h3>
       <div class="big">${DATA.matches.filter(x=>x.played).length}</div>
-      <div class="mut">Resultados reales incorporados a la simulación</div></div>
+      <div class="mut">Resultados reales incorporados a la simulación</div></div>`}
   </div>
+  ${DATA.accuracy ? `<div class="note" style="margin-top:10px">⚠️ Honestidad: con ${DATA.accuracy.draws_real} de ${DATA.accuracy.n_played} partidos terminados en empate (vs ~22% histórico), la precisión de acertar el resultado es baja para cualquier modelo probabilístico — el empate casi nunca es el resultado más probable. El Elo ahora se actualiza con cada partido (columna Elo en Monte Carlo muestra el cambio), así que el modelo reacciona a lo que pasa en la cancha.</div>` : ''}
   <h2 class="section">Probabilidad de ser campeón (top 12): modelo, mercado y ensemble</h2>
   <div class="card"><table>
     <tr><th>Equipo</th><th>Modelo</th><th></th><th>Mercado (sin margen)</th><th>Ensemble ★</th><th>Diferencia</th><th>Elo</th></tr>
@@ -354,8 +358,10 @@ function grupos() {
 function montecarlo() {
   const rows = [...DATA.teams].sort((a,b) => b.mc.champion - a.mc.champion || b.mc.final - a.mc.final || b.mc.sf - a.mc.sf);
   return `<div class="card" style="overflow-x:auto"><table>
-    <tr><th>Equipo</th><th>Grupo</th><th>Elo</th><th>FIFA</th><th>Avanza</th><th>Octavos</th><th>Cuartos</th><th>Semis</th><th>Final</th><th>Campeón</th><th>Ensemble ★</th><th></th></tr>
-    ${rows.map(t => `<tr><td>${team(t.name)}</td><td>${t.group}</td><td class="mut">${t.elo}</td><td class="mut">${t.fifa_rank ?? '—'}</td>
+    <tr><th>Equipo</th><th>Grupo</th><th>Elo en vivo</th><th>FIFA</th><th>Avanza</th><th>Octavos</th><th>Cuartos</th><th>Semis</th><th>Final</th><th>Campeón</th><th>Ensemble ★</th><th></th></tr>
+    ${rows.map(t => `<tr><td>${team(t.name)}</td><td>${t.group}</td>
+      <td class="mut">${t.elo}${t.elo_delta ? ` <span class="${t.elo_delta>0?'pos':'neg'}" title="cambio desde el inicio del torneo">${t.elo_delta>0?'▲':'▼'}${Math.abs(t.elo_delta)}</span>` : ''}</td>
+      <td class="mut">${t.fifa_rank ?? '—'}</td>
       <td>${pct(t.mc.r32)}</td><td>${pct(t.mc.r16)}</td><td>${pct(t.mc.qf)}</td>
       <td>${pct(t.mc.sf)}</td><td>${pct(t.mc.final)}</td><td><b>${pct(t.mc.champion)}</b></td>
       <td><b class="pos">${pct(t.champion_ensemble)}</b></td>

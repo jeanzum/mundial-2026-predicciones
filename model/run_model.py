@@ -51,6 +51,27 @@ def is_host(team, country):
     return HOST_COUNTRY.get(team) == country
 
 
+def compute_live_elo(base_elo, played, fixtures):
+    """Elo actualizado tras cada partido real del torneo (orden cronológico).
+
+    Parte del snapshot pre-torneo de eloratings.net y aplica la fórmula Elo
+    estándar a cada resultado verificado. Esto hace que el modelo reaccione a
+    lo que pasa en la cancha (un favorito que empata pierde rating; una goleada
+    sube al ganador) en vez de quedar anclado a la forma previa al Mundial.
+    100% basado en resultados reales — no incorpora juicios sobre lesiones."""
+    from engine import apply_match_elo
+    R = dict(base_elo)
+    country_of = {}
+    for fx in fixtures:
+        country_of[frozenset((fx["home"], fx["away"]))] = fx["country"]
+    for p in sorted(played, key=lambda x: x["date"]):
+        h, a = p["home"], p["away"]
+        country = country_of.get(frozenset((h, a)))
+        apply_match_elo(R, h, a, p["home_goals"], p["away_goals"],
+                        host_a=is_host(h, country), host_b=is_host(a, country))
+    return R
+
+
 # ------------------------------------------------- predicciones por partido
 
 def predict_fixture(fx, elo):
@@ -255,8 +276,16 @@ def main():
     groups, elo, fixtures, bracket, fifa, odds, played, flags = load()
     n = args.sims
 
-    print(f"Simulando {n:,} torneos…")
-    stage_count, grp_stats, match_appear = run_simulations(n, groups, elo, fixtures, bracket, played)
+    # Elo en vivo: parte del snapshot pre-torneo y aplica cada resultado real.
+    live_elo = compute_live_elo(elo, played, fixtures)
+    moved = sorted(((t, live_elo[t] - elo[t]) for t in elo), key=lambda x: x[1])
+    if played:
+        print("Elo en vivo aplicado. Mayores caídas/subidas:")
+        for t, dv in moved[:3] + moved[-3:]:
+            print(f"  {t:<14} {elo[t]:>5} -> {live_elo[t]:>6.0f}  ({dv:+.0f})")
+
+    print(f"Simulando {n:,} torneos con Elo en vivo…")
+    stage_count, grp_stats, match_appear = run_simulations(n, groups, live_elo, fixtures, bracket, played)
 
     # --- partidos (probabilidades exactas, no MC) ---
     played_map = {}
@@ -265,12 +294,15 @@ def main():
         played_map[(p["away"], p["home"])] = {**p, "home_goals": p["away_goals"], "away_goals": p["home_goals"]}
     matches_out = []
     for fx in fixtures:
-        la, lb, p, conf = predict_fixture(fx, elo)
         real = played_map.get((fx["home"], fx["away"]))
+        # Partidos jugados: predicción con Elo PRE-torneo (lo que el modelo
+        # pensaba antes, honesto para evaluar aciertos). Futuros: Elo en vivo.
+        used_elo = elo if real is not None else live_elo
+        la, lb, p, conf = predict_fixture(fx, used_elo)
         matches_out.append({
             "match": fx["match"], "date": fx["date"], "group": fx["group"],
             "home": fx["home"], "away": fx["away"],
-            "elo_home": elo[fx["home"]], "elo_away": elo[fx["away"]],
+            "elo_home": round(used_elo[fx["home"]]), "elo_away": round(used_elo[fx["away"]]),
             "lam_home": round(la, 3), "lam_away": round(lb, 3),
             "p_home": round(p["p_home"], 4), "p_draw": round(p["p_draw"], 4),
             "p_away": round(p["p_away"], 4),
@@ -281,6 +313,24 @@ def main():
             "score": f"{real['home_goals']}-{real['away_goals']}" if real else None,
         })
 
+    # --- precisión real hasta la fecha (transparencia, sin maquillaje) ---
+    pc = [m for m in matches_out if m["played"]]
+    def outcome(hg, ag): return "1" if hg > ag else ("2" if ag > hg else "X")
+    hits = exact = base_hits = draws = 0
+    for m in pc:
+        hg, ag = map(int, m["score"].split("-"))
+        real = outcome(hg, ag)
+        modal = max((("1", m["p_home"]), ("X", m["p_draw"]), ("2", m["p_away"])), key=lambda x: x[1])[0]
+        hits += modal == real
+        exact += m["top_scores"][0][0] == m["score"]
+        base_hits += (("1" if m["elo_home"] >= m["elo_away"] else "2") == real)
+        draws += real == "X"
+    accuracy = {
+        "n_played": len(pc),
+        "hits_1x2": hits, "hits_exact": exact,
+        "baseline_elo_hits": base_hits, "draws_real": draws,
+    } if pc else None
+
     # --- equipos / Monte Carlo ---
     market, overround = implied_no_vig(odds.get("outright_decimal", {}))
     group_of = {t: g for g, members in groups.items() for t in members}
@@ -290,7 +340,8 @@ def main():
     for t in sorted(group_of):
         fr = fifa.get("rankings", {}).get(t, {})
         teams_out.append({
-            "name": t, "group": group_of[t], "elo": elo[t],
+            "name": t, "group": group_of[t],
+            "elo": round(live_elo[t]), "elo_base": elo[t], "elo_delta": round(live_elo[t] - elo[t]),
             "fifa_rank": fr.get("rank"), "fifa_points": fr.get("points"),
             "market_odds": odds["outright_decimal"].get(t),
             "market_implied": round(market.get(t), 5) if t in market else None,
@@ -365,6 +416,7 @@ def main():
         "flags": flags,
         "methodology_html": methodology_html,
         "backtest": backtest_report,
+        "accuracy": accuracy,
     }
     (WEB / "results.json").write_text(json.dumps(out, ensure_ascii=False))
     print(f"OK -> web/results.json  ({len(matches_out)} partidos, {len(teams_out)} equipos)")

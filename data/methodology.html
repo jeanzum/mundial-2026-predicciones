@@ -8,7 +8,8 @@
 <li><b>Localía:</b> +65 puntos Elo para México, EE.UU. y Canadá solo en partidos dentro de su propio país (el estándar Elo de localía plena es +100; se reduce por ser torneo neutral con sedes múltiples).</li>
 <li><b>Eliminatorias:</b> 90' → prórroga (λ/3) → penales casi 50/50 (la evidencia de que el favorito gana más penales es débil).</li>
 <li><b>Monte Carlo:</b> 100.000 réplicas del torneo completo con reglas FIFA exactas: desempates de grupo (puntos → DG → GF → head-to-head → azar), ranking de los 12 terceros (top 8 avanzan) y asignación de terceros al bracket respetando las restricciones del calendario oficial.</li>
-<li><b>Resultados reales:</b> los partidos ya jugados (México 2-0 Sudáfrica, Corea del Sur 2-1 Chequia, Canadá 0-1 Bosnia) entran como hechos, no como simulación.</li>
+<li><b>Resultados reales:</b> los partidos ya jugados entran como hechos, no como simulación.</li>
+<li><b>Elo en vivo (actualización dentro del torneo):</b> el rating de cada selección se recalcula tras cada partido del Mundial con la fórmula estándar de eloratings.net (K=60 para fase final, multiplicador por margen de gol). Así el modelo reacciona a lo que ocurre en la cancha: un favorito que empata contra un rival débil pierde rating (ej. España 0-0 Cabo Verde: −28 pts) y una goleada sube al ganador. Es 100% empírico — se basa solo en resultados, NO incorpora juicios sobre lesiones o alineaciones. Las predicciones de partidos futuros y la simulación Monte Carlo usan este Elo en vivo; los partidos ya jugados se muestran con el Elo pre-torneo (para evaluar honestamente qué predijo el modelo antes de cada partido).</li>
 </ul>
 
 <h3>Qué datos NO existen o no se usaron (transparencia)</h3>
