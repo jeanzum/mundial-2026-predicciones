@@ -1,6 +1,6 @@
 {
  "source": "ESPN public API (site.api.espn.com, fifa.world scoreboard)",
- "as_of": "2026-06-16",
+ "as_of": "2026-06-17",
  "matches": [
   {
    "date": "2026-06-11",
@@ -145,6 +145,42 @@
    "home_goals": 2,
    "away_goals": 2,
    "source": "ESPN API scoreboard 2026-06-15"
+  },
+  {
+   "date": "2026-06-16",
+   "group": "I",
+   "home": "France",
+   "away": "Senegal",
+   "home_goals": 3,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-16"
+  },
+  {
+   "date": "2026-06-16",
+   "group": "I",
+   "home": "Iraq",
+   "away": "Norway",
+   "home_goals": 1,
+   "away_goals": 4,
+   "source": "ESPN API scoreboard 2026-06-16"
+  },
+  {
+   "date": "2026-06-16",
+   "group": "J",
+   "home": "Argentina",
+   "away": "Algeria",
+   "home_goals": 3,
+   "away_goals": 0,
+   "source": "ESPN API scoreboard 2026-06-16"
+  },
+  {
+   "date": "2026-06-17",
+   "group": "J",
+   "home": "Austria",
+   "away": "Jordan",
+   "home_goals": 3,
+   "away_goals": 1,
+   "source": "ESPN API scoreboard 2026-06-17"
   }
  ]
 }
